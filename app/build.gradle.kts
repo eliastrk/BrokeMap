@@ -75,4 +75,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.maps.android:maps-compose:8.1.0")
     implementation("com.google.maps.android:maps-compose-widgets:8.1.0")
+    implementation("androidx.compose.material:material-icons-extended")
 }

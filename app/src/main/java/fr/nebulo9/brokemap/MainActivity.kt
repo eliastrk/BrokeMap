@@ -1,5 +1,5 @@
 package fr.nebulo9.brokemap
-
+import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
 import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,6 +20,9 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
 import fr.nebulo9.brokemap.ui.theme.BrokeMapTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -29,14 +32,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BrokeMapTheme {
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(defaultLocation, 10f)
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val cameraPositionState = rememberCameraPositionState {
-                        position = CameraPosition.fromLatLngZoom(defaultLocation, 10f)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        GoogleMap(
+                            modifier = Modifier.fillMaxSize(),
+                            cameraPositionState = cameraPositionState
+                        )
+
+                        FilterButton(
+                            onClick = { /* action */ },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                        )
                     }
-                    GoogleMap(
-                        modifier = Modifier.fillMaxSize(),
-                        cameraPositionState = cameraPositionState
-                    )
                 }
             }
         }
