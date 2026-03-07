@@ -7,6 +7,8 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,8 +16,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -34,6 +38,8 @@ import fr.nebulo9.brokemap.R
 import fr.nebulo9.brokemap.models.BusinessViewModel
 import fr.nebulo9.brokemap.models.LocationViewModel
 import fr.nebulo9.brokemap.ui.composables.BitmapFromVector
+import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
+import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
 import fr.nebulo9.brokemap.ui.theme.BrokeMapTheme
 import kotlinx.coroutines.delay
 
@@ -142,5 +148,20 @@ fun MapScreen() {
                 }
             }
         }
+
+        var showFilter by remember { mutableStateOf(false) }
+        FilterButton(
+            onClick = { showFilter = true },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        )
+
+        if (showFilter) {
+            FilterSection(
+                onDismiss = { showFilter = false }
+            )
+        }
+
     }
 }

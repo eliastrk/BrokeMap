@@ -14,10 +14,10 @@ data class PlaceType(
 )
 
 val placeTypes = listOf(
-    PlaceType("restaurant", "Restaurant", Icons.Default.Restaurant),
-    PlaceType("bar", "Bar", Icons.Default.LocalBar),
-    PlaceType("dancingBar", "Dancing Bar", Icons.Default.LocalBar),
-    PlaceType("Museum", "Museum", Icons.Default.AccessAlarm),
-    PlaceType("bench", "Bench", Icons.Default.Park),
-    PlaceType("fastFood", "Fast Food", Icons.Default.FitnessCenter),
+    PlaceType("restaurant", "Restaurant", Icons.Default.Place),
+    PlaceType("bar", "Bar", Icons.Default.Place),
+    PlaceType("dancingBar", "Dancing Bar", Icons.Default.Place),
+    PlaceType("Museum", "Museum", Icons.Default.Place),
+    PlaceType("bench", "Bench", Icons.Default.Place),
+    PlaceType("fastFood", "Fast Food", Icons.Default.Place),
 )
