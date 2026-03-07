@@ -16,8 +16,15 @@ data class PlaceType(
 val placeTypes = listOf(
     PlaceType("restaurant", "Restaurant", Icons.Default.Restaurant),
     PlaceType("bar", "Bar", Icons.Default.LocalBar),
+<<<<<<< Updated upstream
     PlaceType("dancingBar", "Dancing Bar", Icons.Default.LocalBar),
     PlaceType("Museum", "Museum", Icons.Default.AccessAlarm),
     PlaceType("bench", "Bench", Icons.Default.Park),
     PlaceType("fastFood", "Fast Food", Icons.Default.FitnessCenter),
+=======
+    PlaceType("dancing_bar", "Dancing Bar", Icons.Default.Nightlife),
+    PlaceType("museum", "Museum", Icons.Default.Museum),
+    PlaceType("bench", "Bench", Icons.Default.Chair),
+    PlaceType("fastfood", "Fast Food", Icons.Default.Fastfood),
+>>>>>>> Stashed changes
 )
