@@ -24,10 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var defaultLocation = LatLng(.0,.0)
+        RetrofitClient.init(this)
         enableEdgeToEdge()
         setContent {
             BrokeMapTheme {
@@ -62,6 +61,11 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    BrokeMapApp()
                 }
             }
         }
