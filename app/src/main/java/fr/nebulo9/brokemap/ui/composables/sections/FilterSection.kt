@@ -69,11 +69,16 @@ fun FilterSection(
                 }
             }
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                Text("Type of places")
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text(
+                    text = "Type of places",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
                 Spacer(modifier = Modifier.height(12.dp))
 
                 LazyVerticalGrid(
@@ -83,6 +88,7 @@ fun FilterSection(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(placeTypes) { type ->
+
                         val selected = type.id in selectedPlaceTypes
 
                         PlaceTypeButton(
