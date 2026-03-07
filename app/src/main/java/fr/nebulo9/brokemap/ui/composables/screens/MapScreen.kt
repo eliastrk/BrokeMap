@@ -1,14 +1,11 @@
 package fr.nebulo9.brokemap.ui.composables.screens
 
 import android.Manifest
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.GoogleMapOptions
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -31,7 +26,6 @@ import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import fr.nebulo9.brokemap.R
@@ -40,8 +34,8 @@ import fr.nebulo9.brokemap.models.LocationViewModel
 import fr.nebulo9.brokemap.ui.composables.BitmapFromVector
 import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
 import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
-import fr.nebulo9.brokemap.ui.theme.BrokeMapTheme
 import kotlinx.coroutines.delay
+import fr.nebulo9.brokemap.ui.composables.sections.SelectedFilters
 
 /***
  * Main Composable of the BrokeMap app containing displaying a Google Maps composable.
@@ -56,6 +50,9 @@ fun MapScreen() {
     val isLoading by businessViewModel.isLoading.collectAsState()
     val error by businessViewModel.error.collectAsState()
     var hasLoadedBusinesses by remember { mutableStateOf(false) }
+
+    var showFilter by remember { mutableStateOf(false) }
+    var filters by remember { mutableStateOf(SelectedFilters()) }
 
     val mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_hide)
 
@@ -130,26 +127,30 @@ fun MapScreen() {
                 myLocationButtonEnabled = true
             )
         ) {
-            businesses.forEach { business ->
-                if (business.latitude != null && business.longitude != null) {
-                    AdvancedMarker(
-                        state = MarkerState(
-                            position = LatLng(business.latitude, business.longitude)
-                        ),
-                        title = business.name,
-                        snippet = business.city,
-                        icon = when (business.type_name) {
-                            "bar" -> BitmapFromVector(LocalContext.current,R.drawable.beer)
-                            "restaurant" -> BitmapFromVector(LocalContext.current,R.drawable.fork_spoon)
-                            "fastfood" -> BitmapFromVector(LocalContext.current,R.drawable.fastfood)
-                            else -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
-                        }
-                    )
+            businesses
+                .filter { business ->
+                    filters.selectedTypes.isEmpty() ||
+                            business.type_name in filters.selectedTypes
                 }
-            }
+                .forEach { business ->
+                    if (business.latitude != null && business.longitude != null) {
+                        AdvancedMarker(
+                            state = MarkerState(
+                                position = LatLng(business.latitude, business.longitude)
+                            ),
+                            title = business.name,
+                            snippet = business.city,
+                            icon = when (business.type_name) {
+                                "bar" -> BitmapFromVector(LocalContext.current, R.drawable.beer)
+                                "restaurant" -> BitmapFromVector(LocalContext.current, R.drawable.fork_spoon)
+                                "fastfood" -> BitmapFromVector(LocalContext.current, R.drawable.fastfood)
+                                else -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
+                            }
+                        )
+                    }
+                }
         }
 
-        var showFilter by remember { mutableStateOf(false) }
         FilterButton(
             onClick = { showFilter = true },
             modifier = Modifier
@@ -159,6 +160,8 @@ fun MapScreen() {
 
         if (showFilter) {
             FilterSection(
+                filters = filters,
+                onFiltersChange = { filters = it },
                 onDismiss = { showFilter = false }
             )
         }
