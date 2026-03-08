@@ -1,7 +1,7 @@
 package fr.nebulo9.brokemap.ui.composables.sections
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,50 +15,53 @@ import fr.nebulo9.brokemap.ui.composables.buttons.FilterChipButton
 @Composable
 fun BarFiltersSection(
     filters: SelectedFilters,
+    uiData: FilterUiData,
     onFiltersChange: (SelectedFilters) -> Unit
 ) {
-    val alcoholOptions = listOf("Beer", "Wine", "Vodka", "Whisky", "Cocktail")
-
     Spacer(modifier = Modifier.height(12.dp))
 
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FilterChipButton(
-            label = "Terrace",
-            selected = filters.barTerrace,
-            onClick = {
-                onFiltersChange(
-                    filters.copy(barTerrace = !filters.barTerrace)
-                )
-            }
-        )
-    }
+    FilterChipButton(
+        label = "Terrace",
+        selected = filters.barTerrace,
+        onClick = {
+            onFiltersChange(
+                filters.copy(barTerrace = !filters.barTerrace)
+            )
+        }
+    )
 
     Spacer(modifier = Modifier.height(12.dp))
-    Text("Alcohols", style = MaterialTheme.typography.bodyLarge)
+    Text("Alcohol price caps", style = MaterialTheme.typography.bodyLarge)
     Spacer(modifier = Modifier.height(8.dp))
 
-    FlowRow(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        alcoholOptions.forEach { alcohol ->
-            val selected = alcohol in filters.barAlcohols
-            FilterChipButton(
-                label = alcohol,
-                selected = selected,
-                onClick = {
-                    val newSet =
-                        if (selected) filters.barAlcohols - alcohol
-                        else filters.barAlcohols + alcohol
-
-                    onFiltersChange(filters.copy(barAlcohols = newSet))
-                }
+        if (uiData.barAlcoholPriceBounds.isEmpty()) {
+            Text(
+                text = "No alcohol price data available yet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        } else {
+            uiData.barAlcoholPriceBounds.toSortedMap().forEach { (alcohol, bounds) ->
+                PriceSliderFilterRow(
+                    label = alcohol,
+                    bounds = bounds,
+                selectedCap = filters.barAlcoholPriceCaps[alcohol],
+                onCapChange = { cap ->
+                    val isAtMax = cap != null && cap >= bounds.max - 0.0001
+                    val updated =
+                        if (cap == null || isAtMax) {
+                            filters.barAlcoholPriceCaps - alcohol
+                        } else {
+                            filters.barAlcoholPriceCaps + (alcohol to cap)
+                        }
+                        onFiltersChange(filters.copy(barAlcoholPriceCaps = updated))
+                    }
+                )
+            }
         }
     }
 

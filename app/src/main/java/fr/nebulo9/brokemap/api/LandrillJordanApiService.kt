@@ -170,4 +170,7 @@ interface LandrillJordanApiService {
         @Query("skip") skip: Int = 0,
         @Query("limit") limit: Int = 100
     ): List<MuseumDetail>
+
+    @GET("museums/{id}")
+    suspend fun getMuseumById(@Path("id") id: Int): MuseumDetail
 }

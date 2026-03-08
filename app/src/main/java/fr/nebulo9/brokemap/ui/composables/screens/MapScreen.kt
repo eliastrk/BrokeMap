@@ -33,6 +33,9 @@ import fr.nebulo9.brokemap.models.BusinessViewModel
 import fr.nebulo9.brokemap.models.LocationViewModel
 import fr.nebulo9.brokemap.ui.composables.BitmapFromVector
 import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessDetailsCache
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessFilterEngine
+import fr.nebulo9.brokemap.ui.composables.sections.FilterUiDataFactory
 import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
 import kotlinx.coroutines.delay
 import fr.nebulo9.brokemap.ui.composables.sections.SelectedFilters
@@ -47,6 +50,10 @@ fun MapScreen() {
     val businessViewModel: BusinessViewModel = viewModel { BusinessViewModel(context) }
 
     val businesses by businessViewModel.businesses.collectAsState()
+    val restaurantDetailsById by businessViewModel.restaurantDetailsById.collectAsState()
+    val fastfoodDetailsById by businessViewModel.fastfoodDetailsById.collectAsState()
+    val barDetailsById by businessViewModel.barDetailsById.collectAsState()
+    val museumDetailsById by businessViewModel.museumDetailsById.collectAsState()
     val isLoading by businessViewModel.isLoading.collectAsState()
     val error by businessViewModel.error.collectAsState()
     var hasLoadedBusinesses by remember { mutableStateOf(false) }
@@ -99,6 +106,10 @@ fun MapScreen() {
         }
     }
 
+    LaunchedEffect(businesses) {
+        businessViewModel.preloadDetailsForBusinesses(businesses)
+    }
+
 
     LaunchedEffect(cameraPositionState.position.zoom) {
         val newZoomValue = cameraPositionState.position.zoom
@@ -119,6 +130,22 @@ fun MapScreen() {
 
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val detailsCache = BusinessDetailsCache(
+            restaurantsById = restaurantDetailsById,
+            fastfoodsById = fastfoodDetailsById,
+            barsById = barDetailsById,
+            museumsById = museumDetailsById
+        )
+        val filteredBusinesses = BusinessFilterEngine.filterBusinesses(
+            businesses = businesses,
+            filters = filters,
+            details = detailsCache
+        )
+        val filterUiData = FilterUiDataFactory.build(
+            businesses = businesses,
+            details = detailsCache
+        )
+
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -127,12 +154,7 @@ fun MapScreen() {
                 myLocationButtonEnabled = true
             )
         ) {
-            businesses
-                .filter { business ->
-                    filters.selectedTypes.isEmpty() ||
-                            business.type_name in filters.selectedTypes
-                }
-                .forEach { business ->
+            filteredBusinesses.forEach { business ->
                     if (business.latitude != null && business.longitude != null) {
                         AdvancedMarker(
                             state = MarkerState(
@@ -161,6 +183,7 @@ fun MapScreen() {
         if (showFilter) {
             FilterSection(
                 filters = filters,
+                uiData = filterUiData,
                 onFiltersChange = { filters = it },
                 onDismiss = { showFilter = false }
             )

@@ -30,15 +30,23 @@ class BusinessViewModel(context: Context) : ViewModel() {
     // Type-specific data
     private val _restaurants = MutableStateFlow<List<RestaurantDetail>>(emptyList())
     val restaurants: StateFlow<List<RestaurantDetail>> = _restaurants.asStateFlow()
+    private val _restaurantDetailsById = MutableStateFlow<Map<Int, RestaurantDetail>>(emptyMap())
+    val restaurantDetailsById: StateFlow<Map<Int, RestaurantDetail>> = _restaurantDetailsById.asStateFlow()
 
     private val _bars = MutableStateFlow<List<BarDetail>>(emptyList())
     val bars: StateFlow<List<BarDetail>> = _bars.asStateFlow()
+    private val _barDetailsById = MutableStateFlow<Map<Int, BarDetail>>(emptyMap())
+    val barDetailsById: StateFlow<Map<Int, BarDetail>> = _barDetailsById.asStateFlow()
 
     private val _fastfoods = MutableStateFlow<List<FastfoodDetail>>(emptyList())
     val fastfoods: StateFlow<List<FastfoodDetail>> = _fastfoods.asStateFlow()
+    private val _fastfoodDetailsById = MutableStateFlow<Map<Int, FastfoodDetail>>(emptyMap())
+    val fastfoodDetailsById: StateFlow<Map<Int, FastfoodDetail>> = _fastfoodDetailsById.asStateFlow()
 
     private val _museums = MutableStateFlow<List<MuseumDetail>>(emptyList())
     val museums: StateFlow<List<MuseumDetail>> = _museums.asStateFlow()
+    private val _museumDetailsById = MutableStateFlow<Map<Int, MuseumDetail>>(emptyMap())
+    val museumDetailsById: StateFlow<Map<Int, MuseumDetail>> = _museumDetailsById.asStateFlow()
 
     // UI state
     private val _isLoading = MutableStateFlow(false)
@@ -118,6 +126,63 @@ class BusinessViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun preloadRestaurantDetails(ids: Set<Int>) {
+        if (ids.isEmpty()) return
+
+        viewModelScope.launch {
+            val currentDetails = _restaurantDetailsById.value
+            val missingIds = ids.filterNot { it in currentDetails.keys }
+
+            if (missingIds.isEmpty()) return@launch
+
+            val fetchedDetails = mutableMapOf<Int, RestaurantDetail>()
+
+            missingIds.forEach { id ->
+                val detail = getRestaurantDetail(id)
+                if (detail != null) {
+                    fetchedDetails[id] = detail
+                }
+            }
+
+            if (fetchedDetails.isNotEmpty()) {
+                _restaurantDetailsById.value = _restaurantDetailsById.value + fetchedDetails
+            }
+        }
+    }
+
+    fun preloadDetailsForBusinesses(businesses: List<Business>) {
+        if (businesses.isEmpty()) return
+
+        preloadRestaurantDetails(
+            businesses
+                .asSequence()
+                .filter { it.type_name == "restaurant" }
+                .map { it.id }
+                .toSet()
+        )
+        preloadBarDetails(
+            businesses
+                .asSequence()
+                .filter { it.type_name == "bar" || it.type_name == "dancing_bar" }
+                .map { it.id }
+                .toSet()
+        )
+        preloadFastfoodDetails(
+            businesses
+                .asSequence()
+                .filter { it.type_name == "fastfood" }
+                .map { it.id }
+                .toSet()
+        )
+        preloadMuseumDetails(
+            businesses
+                .asSequence()
+                .filter { it.type_name == "museum" }
+                .map { it.id }
+                .toSet()
+        )
+    }
+
     suspend fun getBarDetail(id: Int): BarDetail? {
         return try {
             api.getBarById(id)
@@ -127,12 +192,93 @@ class BusinessViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun preloadBarDetails(ids: Set<Int>) {
+        if (ids.isEmpty()) return
+
+        viewModelScope.launch {
+            val currentDetails = _barDetailsById.value
+            val missingIds = ids.filterNot { it in currentDetails.keys }
+
+            if (missingIds.isEmpty()) return@launch
+
+            val fetchedDetails = mutableMapOf<Int, BarDetail>()
+
+            missingIds.forEach { id ->
+                val detail = getBarDetail(id)
+                if (detail != null) {
+                    fetchedDetails[id] = detail
+                }
+            }
+
+            if (fetchedDetails.isNotEmpty()) {
+                _barDetailsById.value = _barDetailsById.value + fetchedDetails
+            }
+        }
+    }
+
     suspend fun getFastfoodDetail(id: Int): FastfoodDetail? {
         return try {
             api.getFastfoodById(id)
         } catch (e: Exception) {
             Log.e("BusinessViewModel", "Error getting fastfood: ${e.message}")
             null
+        }
+    }
+
+    fun preloadFastfoodDetails(ids: Set<Int>) {
+        if (ids.isEmpty()) return
+
+        viewModelScope.launch {
+            val currentDetails = _fastfoodDetailsById.value
+            val missingIds = ids.filterNot { it in currentDetails.keys }
+
+            if (missingIds.isEmpty()) return@launch
+
+            val fetchedDetails = mutableMapOf<Int, FastfoodDetail>()
+
+            missingIds.forEach { id ->
+                val detail = getFastfoodDetail(id)
+                if (detail != null) {
+                    fetchedDetails[id] = detail
+                }
+            }
+
+            if (fetchedDetails.isNotEmpty()) {
+                _fastfoodDetailsById.value = _fastfoodDetailsById.value + fetchedDetails
+            }
+        }
+    }
+
+    suspend fun getMuseumDetail(id: Int): MuseumDetail? {
+        return try {
+            api.getMuseumById(id)
+        } catch (e: Exception) {
+            Log.e("BusinessViewModel", "Error getting museum: ${e.message}")
+            null
+        }
+    }
+
+    fun preloadMuseumDetails(ids: Set<Int>) {
+        if (ids.isEmpty()) return
+
+        viewModelScope.launch {
+            val currentDetails = _museumDetailsById.value
+            val missingIds = ids.filterNot { it in currentDetails.keys }
+
+            if (missingIds.isEmpty()) return@launch
+
+            val fetchedDetails = mutableMapOf<Int, MuseumDetail>()
+
+            missingIds.forEach { id ->
+                val detail = getMuseumDetail(id)
+                if (detail != null) {
+                    fetchedDetails[id] = detail
+                }
+            }
+
+            if (fetchedDetails.isNotEmpty()) {
+                _museumDetailsById.value = _museumDetailsById.value + fetchedDetails
+            }
         }
     }
 

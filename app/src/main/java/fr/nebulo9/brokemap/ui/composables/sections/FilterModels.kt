@@ -12,17 +12,21 @@ data class SelectedFilters(
     // Fastfood
     val fastfoodStudentDiscount: Boolean = false,
     val fastfoodTerrace: Boolean = false,
-    val fastfoodItems: Set<String> = emptySet(),
+    // Key: item name, Value: max accepted price for this item
+    val fastfoodItemPriceCaps: Map<String, Double> = emptyMap(),
 
     // Bar
     val barTerrace: Boolean = false,
-    val barAlcohols: Set<String> = emptySet(),
+    // Key: alcohol name, Value: max accepted price for this alcohol
+    val barAlcoholPriceCaps: Map<String, Double> = emptyMap(),
 
     // Dancing bar
-    // nothing specific yet
+    // Key: alcohol name, Value: max accepted price for this alcohol
+    val dancingBarAlcoholPriceCaps: Map<String, Double> = emptyMap(),
 
     // Museum
-    val museumFreeOnly: Boolean = false,
+    // null => MAX (no ticket price cap)
+    val museumTicketPriceCap: Double? = null,
 
     // Bench
     // nothing specific yet
