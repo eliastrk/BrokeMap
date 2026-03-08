@@ -3,19 +3,20 @@ package fr.nebulo9.brokemap.ui.composables.sections
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.background
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import kotlin.math.round
 
@@ -32,6 +33,8 @@ fun PriceSliderFilterRow(
     val safeCap = selectedCap ?: max
     val normalizedValue = snapToTenth(safeCap.coerceIn(min, max))
     val steps = sliderSteps(min, max)
+
+    val interactionSource = remember { MutableInteractionSource() }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -58,14 +61,28 @@ fun PriceSliderFilterRow(
             onValueChange = { onCapChange(snapToTenth(it.toDouble())) },
             valueRange = min.toFloat()..max.toFloat(),
             steps = steps,
+            interactionSource = interactionSource,
             thumb = {
-                Spacer(
+                SliderDefaults.Thumb(
+                    interactionSource = interactionSource,
                     modifier = Modifier
                         .size(18.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
+                        .clip(CircleShape),
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    thumbTrackGapSize = 0.dp,
+                    drawStopIndicator = null,
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                        inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
+                    )
                 )
             },
             colors = SliderDefaults.colors(
@@ -87,6 +104,6 @@ private fun snapToTenth(value: Double): Double {
 }
 
 private fun sliderSteps(min: Double, max: Double): Int {
-    val intervals = ((max - min) / 0.1).toInt()
+    val intervals = ((max - min) / 0.5).toInt()
     return (intervals - 1).coerceAtLeast(0)
 }
