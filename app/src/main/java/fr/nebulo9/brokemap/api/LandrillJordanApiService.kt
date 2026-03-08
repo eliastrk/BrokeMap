@@ -1,5 +1,6 @@
 package fr.nebulo9.brokemap.api
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -9,15 +10,33 @@ import retrofit2.http.Query
 data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(val access_token: String)
 
+data class OpeningSchedule(
+    @SerializedName(value = "day_of_week", alternate = ["day", "weekday", "day_name", "jour"])
+    val dayOfWeek: String? = null,
+    @SerializedName(value = "open_time", alternate = ["opening_time", "opens_at", "open", "opening"])
+    val openTime: String? = null,
+    @SerializedName(value = "close_time", alternate = ["closing_time", "closes_at", "close", "closing"])
+    val closeTime: String? = null
+)
+
 data class Business(
     val id: Int,
     val name: String,
     val type_name: String,
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName(value = "address", alternate = ["street", "street_address"])
+    val address: String? = null,
+    @SerializedName(value = "postal_code", alternate = ["postcode", "zip_code", "zipcode", "zip"])
+    val postal_code: String? = null,
     val city: String?,
+    @SerializedName(value = "country", alternate = ["country_name"])
+    val country: String? = null,
     val phone: String?,
     val website: String?,
+    val is_open: Boolean? = null,
+    @SerializedName(value = "schedule", alternate = ["schedules", "opening_hours", "hours"])
+    val schedule: List<OpeningSchedule>? = null,
     val distance: Double? = null
 )
 
@@ -32,9 +51,18 @@ data class RestaurantDetail(
     val name: String,
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName(value = "address", alternate = ["street", "street_address"])
+    val address: String? = null,
+    @SerializedName(value = "postal_code", alternate = ["postcode", "zip_code", "zipcode", "zip"])
+    val postal_code: String? = null,
     val city: String?,
+    @SerializedName(value = "country", alternate = ["country_name"])
+    val country: String? = null,
     val phone: String?,
     val website: String?,
+    val is_open: Boolean? = null,
+    @SerializedName(value = "schedule", alternate = ["schedules", "opening_hours", "hours"])
+    val schedule: List<OpeningSchedule>? = null,
     val distance: Double?,
     val student_discount: Boolean,
     val terrace: Boolean,
@@ -54,11 +82,21 @@ data class BarDetail(
     val name: String,
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName(value = "address", alternate = ["street", "street_address"])
+    val address: String? = null,
+    @SerializedName(value = "postal_code", alternate = ["postcode", "zip_code", "zipcode", "zip"])
+    val postal_code: String? = null,
     val city: String?,
+    @SerializedName(value = "country", alternate = ["country_name"])
+    val country: String? = null,
     val phone: String?,
     val website: String?,
+    val is_open: Boolean? = null,
+    @SerializedName(value = "schedule", alternate = ["schedules", "opening_hours", "hours"])
+    val schedule: List<OpeningSchedule>? = null,
     val distance: Double?,
     val description: String?,
+    val student_discount: Boolean? = null,
     val terrace: Boolean,
     val alcohols: List<Alcohol>
 )
@@ -75,9 +113,18 @@ data class FastfoodDetail(
     val name: String,
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName(value = "address", alternate = ["street", "street_address"])
+    val address: String? = null,
+    @SerializedName(value = "postal_code", alternate = ["postcode", "zip_code", "zipcode", "zip"])
+    val postal_code: String? = null,
     val city: String?,
+    @SerializedName(value = "country", alternate = ["country_name"])
+    val country: String? = null,
     val phone: String?,
     val website: String?,
+    val is_open: Boolean? = null,
+    @SerializedName(value = "schedule", alternate = ["schedules", "opening_hours", "hours"])
+    val schedule: List<OpeningSchedule>? = null,
     val distance: Double?,
     val student_discount: Boolean,
     val terrace: Boolean,
@@ -90,11 +137,21 @@ data class MuseumDetail(
     val name: String,
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName(value = "address", alternate = ["street", "street_address"])
+    val address: String? = null,
+    @SerializedName(value = "postal_code", alternate = ["postcode", "zip_code", "zipcode", "zip"])
+    val postal_code: String? = null,
     val city: String?,
+    @SerializedName(value = "country", alternate = ["country_name"])
+    val country: String? = null,
     val phone: String?,
     val website: String?,
+    val is_open: Boolean? = null,
+    @SerializedName(value = "schedule", alternate = ["schedules", "opening_hours", "hours"])
+    val schedule: List<OpeningSchedule>? = null,
     val distance: Double?,
-    val ticket_price: Double?
+    val ticket_price: Double?,
+    val student_discount: Boolean? = null
 )
 
 interface LandrillJordanApiService {

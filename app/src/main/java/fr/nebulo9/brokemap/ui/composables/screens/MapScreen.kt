@@ -34,11 +34,13 @@ import fr.nebulo9.brokemap.models.LocationViewModel
 import fr.nebulo9.brokemap.ui.composables.BitmapFromVector
 import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
 import fr.nebulo9.brokemap.ui.composables.sections.BusinessDetailsCache
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessDetailsSheet
 import fr.nebulo9.brokemap.ui.composables.sections.BusinessFilterEngine
 import fr.nebulo9.brokemap.ui.composables.sections.FilterUiDataFactory
 import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
 import kotlinx.coroutines.delay
 import fr.nebulo9.brokemap.ui.composables.sections.SelectedFilters
+import fr.nebulo9.brokemap.api.Business
 
 /***
  * Main Composable of the BrokeMap app containing displaying a Google Maps composable.
@@ -60,6 +62,7 @@ fun MapScreen() {
 
     var showFilter by remember { mutableStateOf(false) }
     var filters by remember { mutableStateOf(SelectedFilters()) }
+    var selectedBusiness by remember { mutableStateOf<Business?>(null) }
 
     val mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_hide)
 
@@ -81,7 +84,12 @@ fun MapScreen() {
     }
 
     val location by viewModel.location.collectAsState()
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(50.6292, 3.0573), // Lille
+            12f
+        )
+    }
     var currentZoom by remember { mutableStateOf(13f) }
     var currentRadius by remember { mutableStateOf(5.0) }
     fun getCurrentRadius(zoom: Float): Double {
@@ -162,6 +170,10 @@ fun MapScreen() {
                             ),
                             title = business.name,
                             snippet = business.city,
+                            onClick = {
+                                selectedBusiness = business
+                                true
+                            },
                             icon = when (business.type_name) {
                                 "bar" -> BitmapFromVector(LocalContext.current, R.drawable.beer)
                                 "restaurant" -> BitmapFromVector(LocalContext.current, R.drawable.fork_spoon)
@@ -186,6 +198,14 @@ fun MapScreen() {
                 uiData = filterUiData,
                 onFiltersChange = { filters = it },
                 onDismiss = { showFilter = false }
+            )
+        }
+
+        selectedBusiness?.let { business ->
+            BusinessDetailsSheet(
+                business = business,
+                details = detailsCache,
+                onDismiss = { selectedBusiness = null }
             )
         }
 
