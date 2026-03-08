@@ -1,0 +1,19 @@
+Index: app/src/main/java/fr/nebulo9/brokemap/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fr.nebulo9.brokemap\r\n\r\nimport android.location.Location\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.activity.enableEdgeToEdge\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.material3.Scaffold\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport com.google.android.gms.location.FusedLocationProviderClient\r\nimport com.google.android.gms.location.LocationServices\r\nimport com.google.android.gms.maps.model.CameraPosition\r\nimport com.google.android.gms.maps.model.LatLng\r\nimport com.google.maps.android.compose.CameraPositionState\r\nimport com.google.maps.android.compose.GoogleMap\r\nimport com.google.maps.android.compose.rememberCameraPositionState\r\nimport fr.nebulo9.brokemap.ui.theme.BrokeMapTheme\r\n\r\nclass MainActivity : ComponentActivity() {\r\n    private lateinit var fusedLocationClient: FusedLocationProviderClient\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        var defaultLocation = LatLng(.0,.0)\r\n        enableEdgeToEdge()\r\n        setContent {\r\n            BrokeMapTheme {\r\n                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->\r\n                    val cameraPositionState = rememberCameraPositionState {\r\n                        position = CameraPosition.fromLatLngZoom(defaultLocation, 10f)\r\n                    }\r\n                    GoogleMap(\r\n                        modifier = Modifier.fillMaxSize(),\r\n                        cameraPositionState = cameraPositionState\r\n                    )\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fr/nebulo9/brokemap/MainActivity.kt b/app/src/main/java/fr/nebulo9/brokemap/MainActivity.kt
+--- a/app/src/main/java/fr/nebulo9/brokemap/MainActivity.kt	(revision b01469580ca5d32de3d8679e82ea9854561523f5)
++++ b/app/src/main/java/fr/nebulo9/brokemap/MainActivity.kt	(date 1771337114749)
+@@ -25,7 +25,7 @@
+     private lateinit var fusedLocationClient: FusedLocationProviderClient
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+-        var defaultLocation = LatLng(.0,.0)
++        var defaultLocation = LatLng(34.747847,10.766163)
+         enableEdgeToEdge()
+         setContent {
+             BrokeMapTheme {
