@@ -184,7 +184,7 @@ private fun OpenStatusBadge(openStatus: Boolean?) {
     val (label, color) = when (openStatus) {
         true -> "Open" to Color(0xFF2E7D32)
         false -> "Closed" to Color(0xFFC62828)
-        null -> "Unknown" to MaterialTheme.colorScheme.onSurfaceVariant
+        null -> "Closed" to Color(0xFFC62828)
     }
     Text(
         text = label,

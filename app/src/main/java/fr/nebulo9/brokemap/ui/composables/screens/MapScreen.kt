@@ -6,6 +6,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chair
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +43,8 @@ import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
 import kotlinx.coroutines.delay
 import fr.nebulo9.brokemap.ui.composables.sections.SelectedFilters
 import fr.nebulo9.brokemap.api.Business
+import fr.nebulo9.brokemap.ui.composables.createMarkerIconFromVector
+import fr.nebulo9.brokemap.ui.composables.sections.placeTypes
 
 /***
  * Main Composable of the BrokeMap app containing displaying a Google Maps composable.
@@ -178,6 +182,7 @@ fun MapScreen() {
                                 "bar" -> BitmapFromVector(LocalContext.current, R.drawable.beer)
                                 "restaurant" -> BitmapFromVector(LocalContext.current, R.drawable.fork_spoon)
                                 "fastfood" -> BitmapFromVector(LocalContext.current, R.drawable.fastfood)
+                                "bench" -> BitmapFromVector(LocalContext.current, R.drawable.bench)
                                 else -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
                             }
                         )
