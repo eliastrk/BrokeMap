@@ -15,10 +15,11 @@ import fr.nebulo9.brokemap.ui.composables.buttons.FilterChipButton
 @Composable
 fun RestaurantFiltersSection(
     filters: SelectedFilters,
+    uiData: FilterUiData,
     onFiltersChange: (SelectedFilters) -> Unit
 ) {
-    val averagePriceOptions = listOf("0-10 EUR", "10-20 EUR", "20-30 EUR")
-    val foodTypeOptions = listOf("Lebanese", "Italian", "Burger", "Pizza", "Asian")
+    val averagePriceOptions = uiData.restaurantAveragePrices
+    val foodTypeOptions = uiData.restaurantFoodTypes
 
     Spacer(modifier = Modifier.height(12.dp))
 
@@ -80,25 +81,24 @@ fun RestaurantFiltersSection(
     Text("Food type", style = MaterialTheme.typography.bodyLarge)
     Spacer(modifier = Modifier.height(8.dp))
 
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        foodTypeOptions.forEach { food ->
-            val selected = food in filters.restaurantFoodTypes
-            FilterChipButton(
-                label = food,
-                selected = selected,
-                onClick = {
-                    val newSet =
-                        if (selected) filters.restaurantFoodTypes - food
-                        else filters.restaurantFoodTypes + food
-
-                    onFiltersChange(filters.copy(restaurantFoodTypes = newSet))
-                }
-            )
-        }
+    if (foodTypeOptions.isEmpty()) {
+        Text(
+            text = "No food type data available yet.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    } else {
+        ScrollableMultiSelectList(
+            options = foodTypeOptions,
+            selectedValues = filters.restaurantFoodTypes,
+            onToggle = { food ->
+                val selected = food in filters.restaurantFoodTypes
+                val newSet =
+                    if (selected) filters.restaurantFoodTypes - food
+                    else filters.restaurantFoodTypes + food
+                onFiltersChange(filters.copy(restaurantFoodTypes = newSet))
+            }
+        )
     }
 
     Spacer(modifier = Modifier.height(20.dp))

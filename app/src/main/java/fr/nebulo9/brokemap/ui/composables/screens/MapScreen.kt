@@ -6,6 +6,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chair
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,9 +35,16 @@ import fr.nebulo9.brokemap.models.BusinessViewModel
 import fr.nebulo9.brokemap.models.LocationViewModel
 import fr.nebulo9.brokemap.ui.composables.BitmapFromVector
 import fr.nebulo9.brokemap.ui.composables.buttons.FilterButton
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessDetailsCache
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessDetailsSheet
+import fr.nebulo9.brokemap.ui.composables.sections.BusinessFilterEngine
+import fr.nebulo9.brokemap.ui.composables.sections.FilterUiDataFactory
 import fr.nebulo9.brokemap.ui.composables.sections.FilterSection
 import kotlinx.coroutines.delay
 import fr.nebulo9.brokemap.ui.composables.sections.SelectedFilters
+import fr.nebulo9.brokemap.api.Business
+import fr.nebulo9.brokemap.ui.composables.createMarkerIconFromVector
+import fr.nebulo9.brokemap.ui.composables.sections.placeTypes
 
 /***
  * Main Composable of the BrokeMap app containing displaying a Google Maps composable.
@@ -47,12 +56,17 @@ fun MapScreen() {
     val businessViewModel: BusinessViewModel = viewModel { BusinessViewModel(context) }
 
     val businesses by businessViewModel.businesses.collectAsState()
+    val restaurantDetailsById by businessViewModel.restaurantDetailsById.collectAsState()
+    val fastfoodDetailsById by businessViewModel.fastfoodDetailsById.collectAsState()
+    val barDetailsById by businessViewModel.barDetailsById.collectAsState()
+    val museumDetailsById by businessViewModel.museumDetailsById.collectAsState()
     val isLoading by businessViewModel.isLoading.collectAsState()
     val error by businessViewModel.error.collectAsState()
     var hasLoadedBusinesses by remember { mutableStateOf(false) }
 
     var showFilter by remember { mutableStateOf(false) }
     var filters by remember { mutableStateOf(SelectedFilters()) }
+    var selectedBusiness by remember { mutableStateOf<Business?>(null) }
 
     val mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_hide)
 
@@ -74,7 +88,12 @@ fun MapScreen() {
     }
 
     val location by viewModel.location.collectAsState()
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(50.6292, 3.0573), // Lille
+            12f
+        )
+    }
     var currentZoom by remember { mutableStateOf(13f) }
     var currentRadius by remember { mutableStateOf(5.0) }
     fun getCurrentRadius(zoom: Float): Double {
@@ -99,6 +118,10 @@ fun MapScreen() {
         }
     }
 
+    LaunchedEffect(businesses) {
+        businessViewModel.preloadDetailsForBusinesses(businesses)
+    }
+
 
     LaunchedEffect(cameraPositionState.position.zoom) {
         val newZoomValue = cameraPositionState.position.zoom
@@ -119,6 +142,22 @@ fun MapScreen() {
 
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val detailsCache = BusinessDetailsCache(
+            restaurantsById = restaurantDetailsById,
+            fastfoodsById = fastfoodDetailsById,
+            barsById = barDetailsById,
+            museumsById = museumDetailsById
+        )
+        val filteredBusinesses = BusinessFilterEngine.filterBusinesses(
+            businesses = businesses,
+            filters = filters,
+            details = detailsCache
+        )
+        val filterUiData = FilterUiDataFactory.build(
+            businesses = businesses,
+            details = detailsCache
+        )
+
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -127,12 +166,7 @@ fun MapScreen() {
                 myLocationButtonEnabled = true
             )
         ) {
-            businesses
-                .filter { business ->
-                    filters.selectedTypes.isEmpty() ||
-                            business.type_name in filters.selectedTypes
-                }
-                .forEach { business ->
+            filteredBusinesses.forEach { business ->
                     if (business.latitude != null && business.longitude != null) {
                         AdvancedMarker(
                             state = MarkerState(
@@ -140,10 +174,15 @@ fun MapScreen() {
                             ),
                             title = business.name,
                             snippet = business.city,
+                            onClick = {
+                                selectedBusiness = business
+                                true
+                            },
                             icon = when (business.type_name) {
                                 "bar" -> BitmapFromVector(LocalContext.current, R.drawable.beer)
                                 "restaurant" -> BitmapFromVector(LocalContext.current, R.drawable.fork_spoon)
                                 "fastfood" -> BitmapFromVector(LocalContext.current, R.drawable.fastfood)
+                                "bench" -> BitmapFromVector(LocalContext.current, R.drawable.bench)
                                 else -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
                             }
                         )
@@ -161,8 +200,17 @@ fun MapScreen() {
         if (showFilter) {
             FilterSection(
                 filters = filters,
+                uiData = filterUiData,
                 onFiltersChange = { filters = it },
                 onDismiss = { showFilter = false }
+            )
+        }
+
+        selectedBusiness?.let { business ->
+            BusinessDetailsSheet(
+                business = business,
+                details = detailsCache,
+                onDismiss = { selectedBusiness = null }
             )
         }
 

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun FilterSection(
     filters: SelectedFilters,
+    uiData: FilterUiData,
     onFiltersChange: (SelectedFilters) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -144,7 +145,7 @@ fun FilterSection(
             if ("restaurant" in filters.selectedTypes) {
                 item {
                     FilterCard("Restaurant") {
-                        RestaurantFiltersSection(filters, onFiltersChange)
+                        RestaurantFiltersSection(filters, uiData, onFiltersChange)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -153,7 +154,7 @@ fun FilterSection(
             if ("fastfood" in filters.selectedTypes) {
                 item {
                     FilterCard("Fast Food") {
-                        FastFoodFiltersSection(filters, onFiltersChange)
+                        FastFoodFiltersSection(filters, uiData, onFiltersChange)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -162,7 +163,7 @@ fun FilterSection(
             if ("bar" in filters.selectedTypes) {
                 item {
                     FilterCard("Bar") {
-                        BarFiltersSection(filters, onFiltersChange)
+                        BarFiltersSection(filters, uiData, onFiltersChange)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -171,7 +172,7 @@ fun FilterSection(
             if ("dancing_bar" in filters.selectedTypes) {
                 item {
                     FilterCard("Dancing Bar") {
-                        DancingBarFiltersSection()
+                        DancingBarFiltersSection(filters, uiData, onFiltersChange)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -180,7 +181,7 @@ fun FilterSection(
             if ("museum" in filters.selectedTypes) {
                 item {
                     FilterCard("Museum") {
-                        MuseumFiltersSection(filters, onFiltersChange)
+                        MuseumFiltersSection(filters, uiData, onFiltersChange)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }

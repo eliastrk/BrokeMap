@@ -1,6 +1,7 @@
 package fr.nebulo9.brokemap.ui.composables.sections
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,10 +16,9 @@ import fr.nebulo9.brokemap.ui.composables.buttons.FilterChipButton
 @Composable
 fun FastFoodFiltersSection(
     filters: SelectedFilters,
+    uiData: FilterUiData,
     onFiltersChange: (SelectedFilters) -> Unit
 ) {
-    val itemOptions = listOf("Burger", "Fries", "Wrap", "Tacos", "Pizza Slice")
-
     Spacer(modifier = Modifier.height(12.dp))
 
     FlowRow(
@@ -52,27 +52,37 @@ fun FastFoodFiltersSection(
     }
 
     Spacer(modifier = Modifier.height(12.dp))
-    Text("Items", style = MaterialTheme.typography.bodyLarge)
+    Text("Item price caps", style = MaterialTheme.typography.bodyLarge)
     Spacer(modifier = Modifier.height(8.dp))
 
-    FlowRow(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        itemOptions.forEach { item ->
-            val selected = item in filters.fastfoodItems
-            FilterChipButton(
-                label = item,
-                selected = selected,
-                onClick = {
-                    val newSet =
-                        if (selected) filters.fastfoodItems - item
-                        else filters.fastfoodItems + item
-
-                    onFiltersChange(filters.copy(fastfoodItems = newSet))
-                }
+        if (uiData.fastfoodItemPriceBounds.isEmpty()) {
+            Text(
+                text = "No item price data available yet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        } else {
+            uiData.fastfoodItemPriceBounds.toSortedMap().forEach { (item, bounds) ->
+                PriceSliderFilterRow(
+                    label = item,
+                    bounds = bounds,
+                selectedCap = filters.fastfoodItemPriceCaps[item],
+                onCapChange = { cap ->
+                    val isAtMax = cap != null && cap >= bounds.max - 0.0001
+                    val updated =
+                        if (cap == null || isAtMax) {
+                            filters.fastfoodItemPriceCaps - item
+                        } else {
+                            filters.fastfoodItemPriceCaps + (item to cap)
+                        }
+                        onFiltersChange(filters.copy(fastfoodItemPriceCaps = updated))
+                    }
+                )
+            }
         }
     }
 
